@@ -1,0 +1,368 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "54777f0b12e64324eb83ee261bcb4962",
+    "entities": [
+      {
+        "tableName": "hobby",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `key` TEXT, `name` TEXT NOT NULL, `cat` TEXT NOT NULL, `archived` INTEGER NOT NULL, `created` INTEGER NOT NULL, `ord` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cat",
+            "columnName": "cat",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archived",
+            "columnName": "archived",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "created",
+            "columnName": "created",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ord",
+            "columnName": "ord",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "thing",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `hobbyId` INTEGER, `key` TEXT, `name` TEXT NOT NULL, `arch` TEXT NOT NULL, `pal` TEXT NOT NULL, `verb` TEXT NOT NULL, `pts` INTEGER NOT NULL, `pers` TEXT NOT NULL, `created` INTEGER NOT NULL, `kind` TEXT NOT NULL, `rare` TEXT, `parentA` INTEGER, `parentB` INTEGER, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hobbyId",
+            "columnName": "hobbyId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "arch",
+            "columnName": "arch",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pal",
+            "columnName": "pal",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "verb",
+            "columnName": "verb",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pts",
+            "columnName": "pts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pers",
+            "columnName": "pers",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "created",
+            "columnName": "created",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rare",
+            "columnName": "rare",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "parentA",
+            "columnName": "parentA",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "parentB",
+            "columnName": "parentB",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_thing_hobbyId",
+            "unique": false,
+            "columnNames": [
+              "hobbyId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_thing_hobbyId` ON `${TABLE_NAME}` (`hobbyId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "session",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `at` INTEGER NOT NULL, `hobbyId` INTEGER NOT NULL, `minutes` INTEGER NOT NULL, `verbs` TEXT NOT NULL, `note` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "at",
+            "columnName": "at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hobbyId",
+            "columnName": "hobbyId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minutes",
+            "columnName": "minutes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "verbs",
+            "columnName": "verbs",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "note",
+            "columnName": "note",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_session_hobbyId",
+            "unique": false,
+            "columnNames": [
+              "hobbyId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_session_hobbyId` ON `${TABLE_NAME}` (`hobbyId`)"
+          },
+          {
+            "name": "index_session_at",
+            "unique": false,
+            "columnNames": [
+              "at"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_session_at` ON `${TABLE_NAME}` (`at`)"
+          }
+        ]
+      },
+      {
+        "tableName": "ev",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `at` INTEGER NOT NULL, `type` TEXT NOT NULL, `a` INTEGER NOT NULL, `b` INTEGER NOT NULL, `c` INTEGER NOT NULL, `n` INTEGER NOT NULL, `s` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "at",
+            "columnName": "at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "a",
+            "columnName": "a",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "b",
+            "columnName": "b",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "c",
+            "columnName": "c",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "n",
+            "columnName": "n",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "s",
+            "columnName": "s",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ev_at",
+            "unique": false,
+            "columnNames": [
+              "at"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ev_at` ON `${TABLE_NAME}` (`at`)"
+          }
+        ]
+      },
+      {
+        "tableName": "bond",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`a` INTEGER NOT NULL, `b` INTEGER NOT NULL, `days` INTEGER NOT NULL, `lastDay` INTEGER NOT NULL, PRIMARY KEY(`a`, `b`))",
+        "fields": [
+          {
+            "fieldPath": "a",
+            "columnName": "a",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "b",
+            "columnName": "b",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "days",
+            "columnName": "days",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastDay",
+            "columnName": "lastDay",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "a",
+            "b"
+          ]
+        }
+      },
+      {
+        "tableName": "meta",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`k` TEXT NOT NULL, `v` TEXT NOT NULL, PRIMARY KEY(`k`))",
+        "fields": [
+          {
+            "fieldPath": "k",
+            "columnName": "k",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "v",
+            "columnName": "v",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "k"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '54777f0b12e64324eb83ee261bcb4962')"
+    ]
+  }
+}
