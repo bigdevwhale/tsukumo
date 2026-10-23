@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.1] - 2026-10-23
+
+- Spirits walk round the kotatsu instead of through it; only the sleepy ones crawl in under the blanket.
+
 ## [1.0.0] - 2026-10-23
 
 The first release.

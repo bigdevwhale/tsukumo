@@ -59,6 +59,8 @@ class World(private val lines: (Thing, Mood) -> String) {
         var napping = false
         var napEnd = 0.0
         var visit: Long? = null
+        /** Corners to pass on the way to (tx, tf), so nobody walks through the kotatsu. */
+        val path = ArrayDeque<DoubleArray>()
         var garden = false
         var awoke = false
         var jx0 = 0.0; var jf0 = 0.0; var jx1 = 0.0; var jf1 = 0.0; var jt = 0.0
@@ -146,17 +148,46 @@ class World(private val lines: (Thing, Mood) -> String) {
         val q = rnd.nextDouble()
         val others = actors.values.filter { it !== a && it.mode != Mode.SHELF && it.mode != Mode.SLEEP && it.mode != Mode.JUMP }
         if ((m.night && (p == Pers.SLEEPY || q < .2)) || (p == Pers.SLEEPY && q < .12) || (m.season == Season.WINTER && q < .1)) {
-            val (x, f) = sleepSlot(a); a.tx = x; a.tf = f; a.mode = Mode.TO_SLEEP; a.napping = true; a.napEnd = t + r(14.0, 40.0); return
+            val (x, f) = sleepSlot(a); go(a, x, f, sleep = true); a.mode = Mode.TO_SLEEP; a.napping = true; a.napEnd = t + r(14.0, 40.0); return
         }
         if (q < .18 && others.isNotEmpty()) {
             val b = others[rnd.nextInt(others.size)]
-            a.visit = b.thing.id; a.tx = (b.x + if (rnd.nextBoolean()) -22 else 22).coerceIn(4.0, 328.0); a.tf = (b.foot + r(-3.0, 3.0)).coerceIn(194.0, 316.0); a.mode = Mode.WALK; return
+            a.visit = b.thing.id; go(a, (b.x + if (rnd.nextBoolean()) -22 else 22).coerceIn(4.0, 328.0), (b.foot + r(-3.0, 3.0)).coerceIn(194.0, 316.0)); a.mode = Mode.WALK; return
         }
         if (q < .42) {
-            if (rnd.nextDouble() < .3) { a.tx = r(272.0, 290.0); a.tf = 204.0 } else { a.tx = r(270.0, 328.0); a.tf = r(214.0, 316.0) }
+            if (rnd.nextDouble() < .3) go(a, r(272.0, 290.0), 204.0) else go(a, r(270.0, 328.0), r(214.0, 316.0))
             a.garden = true; a.mode = Mode.WALK; return
         }
-        val (x, f) = floorPoint(); a.tx = x; a.tf = f; a.mode = Mode.WALK
+        val (x, f) = floorPoint(); go(a, x, f); a.mode = Mode.WALK
+    }
+
+    // The kotatsu's footprint in (centre x, foot) space; walkers go round it.
+    private val BX0 = 66.0; private val BF0 = 202.0; private val BX1 = 258.0; private val BF1 = 264.0
+    private fun inBox(cx: Double, f: Double) = cx > BX0 && cx < BX1 && f > BF0 && f < BF1
+    private fun clear(x0: Double, f0: Double, x1: Double, f1: Double): Boolean {
+        for (i in 1 until 24) { val k = i / 24.0; if (inBox(x0 + (x1 - x0) * k, f0 + (f1 - f0) * k)) return false }
+        return true
+    }
+
+    /** Sets a target and the corners to pass on the way there. */
+    private fun go(a: Actor, x: Double, f0: Double, sleep: Boolean = false) {
+        // Only sleepers crawl in under the blanket; anyone else stops at its edge.
+        val f = if (!sleep && inBox(x + 16, f0)) BF1 + 4 else f0
+        a.tx = x; a.tf = f; a.path.clear()
+        var cx = a.x + 16; var cf = a.foot
+        if (inBox(cx, cf)) { cf = BF1 + 2; a.path += doubleArrayOf(cx - 16, cf) }
+        val ex = x + 16
+        val into = inBox(ex, f)
+        val gf = if (into) BF1 + 2 else f
+        if (!clear(cx, cf, ex, gf)) {
+            val c = listOf(doubleArrayOf(BX0 - 2, BF0 - 2), doubleArrayOf(BX1 + 2, BF0 - 2), doubleArrayOf(BX0 - 2, BF1 + 2), doubleArrayOf(BX1 + 2, BF1 + 2))
+            fun len(vararg p: DoubleArray): Double { var s = 0.0; var px = cx; var pf = cf; for (q in p) { s += hypot(q[0] - px, q[1] - pf); px = q[0]; pf = q[1] }; return s + hypot(ex - px, gf - pf) }
+            var best: List<DoubleArray>? = null; var bl = Double.MAX_VALUE
+            for (p in c) if (clear(cx, cf, p[0], p[1]) && clear(p[0], p[1], ex, gf)) { val l = len(p); if (l < bl) { bl = l; best = listOf(p) } }
+            for (p in c) for (q in c) if (p !== q && clear(cx, cf, p[0], p[1]) && clear(p[0], p[1], q[0], q[1]) && clear(q[0], q[1], ex, gf)) { val l = len(p, q); if (l < bl) { bl = l; best = listOf(p, q) } }
+            best?.forEach { a.path += doubleArrayOf(it[0] - 16, it[1]) }
+        }
+        if (into) a.path += doubleArrayOf(x, gf)
     }
 
     private fun speed(p: Pers) = when (p) { Pers.SHY -> 18.0; Pers.BOLD -> 34.0; Pers.SLEEPY -> 12.0; Pers.CURIOUS -> 26.0; Pers.PROUD -> 20.0; Pers.CARING -> 19.0 }
@@ -185,7 +216,7 @@ class World(private val lines: (Thing, Mood) -> String) {
                 }
                 else -> Unit
             }
-            if (m.asleep && a.mode != Mode.SLEEP && a.mode != Mode.TO_SLEEP) { val (x, f) = sleepSlot(a); a.tx = x; a.tf = f; a.mode = Mode.TO_SLEEP; a.napping = false }
+            if (m.asleep && a.mode != Mode.SLEEP && a.mode != Mode.TO_SLEEP) { val (x, f) = sleepSlot(a); go(a, x, f, sleep = true); a.mode = Mode.TO_SLEEP; a.napping = false }
             if (m.asleep && a.mode == Mode.SLEEP) a.napping = false
             if (!m.asleep && a.mode == Mode.SLEEP && !a.napping) { a.mode = Mode.IDLE; a.until = t + r(.5, 2.0); say(a, "!") }
             if (a.mode == Mode.SLEEP) {
@@ -194,9 +225,12 @@ class World(private val lines: (Thing, Mood) -> String) {
                 continue
             }
             if (a.mode == Mode.WALK || a.mode == Mode.TO_SLEEP) {
-                val dx = a.tx - a.x; val df = a.tf - a.foot; val d = hypot(dx, df)
+                val wp = a.path.firstOrNull()
+                val gx = wp?.get(0) ?: a.tx; val gf = wp?.get(1) ?: a.tf
+                val dx = gx - a.x; val df = gf - a.foot; val d = hypot(dx, df)
                 val sp = speed(a.thing.pers) * (if (a.mode == Mode.TO_SLEEP) 1.3 else 1.0)
-                if (d < 1.5) {
+                if (d < 1.5 && wp != null) { a.x = gx; a.foot = gf; a.path.removeFirst() }
+                else if (d < 1.5) {
                     a.x = a.tx; a.foot = a.tf
                     if (a.mode == Mode.TO_SLEEP) { a.mode = Mode.SLEEP; a.talkAt = t + 1; continue }
                     a.mode = Mode.IDLE; a.until = t + (if (a.garden) r(8.0, 16.0) else r(3.0, 8.0)) * (1 + a.thing.rank * .6)
