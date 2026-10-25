@@ -13,6 +13,7 @@ import app.tsukumo.BuildConfig
 import app.tsukumo.ui.Home
 import app.tsukumo.ui.components.Btn
 import app.tsukumo.ui.components.Chip
+import app.tsukumo.ui.components.CommunityLinks
 import app.tsukumo.ui.components.Eyebrow
 import app.tsukumo.ui.components.Flow
 import app.tsukumo.ui.components.Gap
@@ -31,6 +32,10 @@ fun SettingsScreen(h: Home, onClose: () -> Unit) {
             for ((tag, label) in listOf("" to w.t("Как в системе", "System"), "ru" to "Русский", "en" to "English"))
                 Chip(label, cur == tag) { AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag)) }
         }
+        Gap(20)
+        Eyebrow(w.t("Сообщество", "Community"))
+        Gap(6)
+        CommunityLinks(w)
         Gap(20)
         Eyebrow(w.t("О приложении", "About"))
         Gap(6)
