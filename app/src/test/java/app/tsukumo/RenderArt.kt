@@ -83,7 +83,7 @@ class RenderArtIcon {
     }
 
     @Test fun icons() {
-        icon("yarn", "sakura", "yarn")
-        File(out, "icon-yarn.png").copyTo(File(out, "../../../docs/icon-src.png").apply { parentFile?.mkdirs() }, overwrite = true)
+        icon("tanuki", "tanuki", "tanuki")
+        File(out, "icon-tanuki.png").copyTo(File(out, "../../../docs/icon-src.png").apply { parentFile?.mkdirs() }, overwrite = true)
     }
 }
